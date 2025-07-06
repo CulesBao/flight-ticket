@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AirportsController } from '../../api/airports/airports.controller';
-import { GetAirportByCodeUseCase } from './use-cases/get-airport-by-code.use-case';
-import { GetAllAirportsUseCase } from './use-cases/get-all-airports.use-case';
-import { InMemoryAirportRepository } from '../../infra/airports/repositories/in-memory-airport.repository';
+import { AirportsController } from 'src/api';
+import { GetAirportByCodeUseCase } from './index';
+import { GetAllAirportsUseCase } from './index';
+import { InMemoryAirportRepository, RedlockModule } from 'src/infra';
 
 // Token cho dependency injection
 export const AIRPORT_REPOSITORY_TOKEN = 'AIRPORT_REPOSITORY';
@@ -24,5 +24,6 @@ export const AIRPORT_REPOSITORY_TOKEN = 'AIRPORT_REPOSITORY';
     GetAirportByCodeUseCase,
     GetAllAirportsUseCase,
   ],
+  imports: [RedlockModule],
 })
 export class AirportsModule {}
