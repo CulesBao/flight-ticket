@@ -9,7 +9,54 @@
 - `src/infra/` - Triển khai repository (hiện tại là In-Memory), cấu hình Redis/Redlock
 - `src/api/` - Controllers expose HTTP endpoints
 
-**Quy Tắc Quan Trọng**: Luôn sử dụng dependency injection tokens từ `src/shared/constants/injection-tokens.ts` khi inject repositories vào use cases. Sử dụng `REPOSITORY_TOKENS.{DOMAIN}_REPOSITORY` thay vì hardcode string.
+**Quy Tắc Quan Trọng**: Mỗi module quản lý DI tokens riêng của mình. Sử dụng tokens từ file `{module}.tokens.ts` trong cùng module thay vì centralized tokens. Ví dụ: `AIRPORT_TOKENS.AIRPORT_REPOSITORY` trong airports module.
+
+## GitHub Conventions
+
+**Quy Tắc Bắt Buộc**: Tất cả nội dung liên quan đến GitHub phải được viết bằng **tiếng Anh** để đảm bảo tính nhất quán và chuyên nghiệp:
+
+### Git Commit Messages
+
+- ✅ **ĐÚNG**: `feat: add Redis cluster configuration for distributed caching`
+- ✅ **ĐÚNG**: `refactor: migrate from centralized to modular DI tokens`
+- ✅ **ĐÚNG**: `fix: resolve TypeScript errors in airport use cases`
+- ❌ **SAI**: `feat: thêm cấu hình Redis cluster cho distributed caching`
+
+### Pull Request & Issues
+
+- **Title**: Luôn bằng tiếng Anh
+- **Description**: Bằng tiếng Anh với format markdown rõ ràng
+- **Labels**: Sử dụng labels tiếng Anh (enhancement, bug, refactor, etc.)
+- **Comments**: Tiếng Anh trong tất cả discussions
+
+### Branch Names
+
+- ✅ **ĐÚNG**: `feature/user-authentication`, `bugfix/redis-connection`, `refactor/modular-tokens`
+- ❌ **SAI**: `feature/xac-thuc-nguoi-dung`, `bugfix/loi-ket-noi-redis`
+
+### Documentation in Code
+
+- **README.md**: Tiếng Anh
+- **API Documentation**: Tiếng Anh
+- **Code Comments**: Ưu tiên tiếng Anh cho public APIs
+- **Internal Documentation**: Có thể tiếng Việt trong file instructions này
+
+### Conventional Commits Format
+
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+**Types**: feat, fix, docs, style, refactor, test, chore
+**Examples**:
+
+- `feat(auth): implement JWT token validation`
+- `fix(redis): resolve connection timeout issues`
+- `refactor(tokens): migrate to modular DI approach`
 
 ## Quy Trình Phát Triển Chính
 
@@ -19,9 +66,9 @@
 2. Định nghĩa repository interface trong `src/domain/{domain}/repositories/`
 3. Thêm barrel export trong `src/domain/{domain}/index.ts`
 4. Triển khai In-Memory repository trong `src/infra/{domain}/repositories/` với mock data
-5. Tạo use cases trong `src/app/{domain}/use-cases/`
-6. Cài đặt DI module trong `src/app/{domain}/{domain}.module.ts` với repository token
-7. Tạo repository token file trong `src/app/{domain}/{domain}.tokens.ts`
+5. Tạo DI tokens file trong `src/app/{domain}/{domain}.tokens.ts`
+6. Tạo use cases trong `src/app/{domain}/use-cases/` sử dụng tokens từ `{domain}.tokens.ts`
+7. Cài đặt DI module trong `src/app/{domain}/{domain}.module.ts` với tokens riêng
 8. Tạo controller trong `src/api/{domain}/controllers/` với ánh xạ DTOs và entities
 9. Cập nhật API specification trong `docs/api-specification.md` nếu cần
 
@@ -73,14 +120,14 @@ findById(id: string): SeatEntity | null { /* implementation */ }
 
 ### Cấu Hình Module
 
-Mỗi module sử dụng DI tokens từ constants file:
+Mỗi module sử dụng DI tokens từ file tokens riêng:
 
 ```typescript
-import { REPOSITORY_TOKENS } from 'src/shared/constants/injection-tokens';
+import { AIRPORT_TOKENS } from './airports.tokens';
 
 providers: [
   {
-    provide: REPOSITORY_TOKENS.AIRPORT_REPOSITORY,
+    provide: AIRPORT_TOKENS.AIRPORT_REPOSITORY,
     useClass: InMemoryAirportRepository,
   },
 ];
@@ -88,25 +135,87 @@ providers: [
 
 ### Quản Lý DI Tokens
 
-Tất cả DI tokens được quản lý tập trung trong `src/shared/constants/injection-tokens.ts`:
+Mỗi module quản lý tokens riêng của mình trong file `{module}.tokens.ts`:
+
+**Domain Tokens** (trong `src/app/{domain}/{domain}.tokens.ts`):
 
 ```typescript
-export const REPOSITORY_TOKENS = {
+export const AIRPORT_TOKENS = {
+  // Repository
   AIRPORT_REPOSITORY: 'AIRPORT_REPOSITORY',
-  SEAT_REPOSITORY: 'SEAT_REPOSITORY',
-  // ... other repository tokens
+
+  // Use Cases
+  GET_AIRPORT_BY_CODE_USE_CASE: 'GET_AIRPORT_BY_CODE_USE_CASE',
+  GET_ALL_AIRPORTS_USE_CASE: 'GET_ALL_AIRPORTS_USE_CASE',
 } as const;
 
+export type AirportToken = keyof typeof AIRPORT_TOKENS;
+```
+
+**Infrastructure Tokens** (trong `src/infra/{service}/{service}.tokens.ts`):
+
+```typescript
+// Redis tokens trong src/infra/redis/redis.tokens.ts
 export const REDIS_TOKENS = {
   REDIS_CLIENT: 'REDIS_CLIENT',
   REDIS_SERVICE: 'REDIS_SERVICE',
+  REDIS_CLUSTER: 'REDIS_CLUSTER',
+} as const;
+
+// Redlock tokens trong src/infra/redlock/redlock.tokens.ts
+export const REDLOCK_TOKENS = {
+  REDLOCK_INSTANCE: 'REDLOCK_INSTANCE',
+  REDLOCK_SERVICE: 'REDLOCK_SERVICE',
 } as const;
 ```
 
-{ provide: AIRPORT_REPOSITORY_TOKEN, useClass: InMemoryAirportRepository },
-];
+### Best Practices cho Modular Tokens
 
-```
+1. **Naming Convention**:
+
+   - Domain tokens: `{DOMAIN}_TOKENS` (ví dụ: `AIRPORT_TOKENS`, `SEAT_TOKENS`)
+   - Infrastructure tokens: `{SERVICE}_TOKENS` (ví dụ: `REDIS_TOKENS`, `REDLOCK_TOKENS`)
+
+2. **File Structure**:
+
+   - Domain tokens: `src/app/{domain}/{domain}.tokens.ts`
+   - Infrastructure tokens: `src/infra/{service}/{service}.tokens.ts`
+
+3. **Import Pattern**:
+
+   ```typescript
+   // Trong use case
+   import { AIRPORT_TOKENS } from '../airports.tokens';
+
+   // Trong module
+   import { AIRPORT_TOKENS } from './airports.tokens';
+
+   // Infrastructure
+   import { REDIS_TOKENS } from './redis.tokens';
+   ```
+
+4. **Type Safety**:
+   ```typescript
+   export type AirportToken = keyof typeof AIRPORT_TOKENS;
+   export type RedisToken = keyof typeof REDIS_TOKENS;
+   ```
+
+### Migration từ Centralized sang Modular Tokens
+
+Dự án đã được refactor từ centralized tokens sang modular tokens (PR #2). Khi làm việc với dự án:
+
+1. **Không sử dụng**: `src/shared/constants/injection-tokens.ts` (đã bị xóa)
+2. **Sử dụng**: Module-specific token files
+3. **Pattern cũ** (deprecated):
+   ```typescript
+   import { REPOSITORY_TOKENS } from 'src/shared/constants/injection-tokens';
+   provide: REPOSITORY_TOKENS.AIRPORT_REPOSITORY;
+   ```
+4. **Pattern mới** (recommended):
+   ```typescript
+   import { AIRPORT_TOKENS } from './airports.tokens';
+   provide: AIRPORT_TOKENS.AIRPORT_REPOSITORY;
+   ```
 
 ## Dependencies Bên Ngoài
 
@@ -123,7 +232,8 @@ Mỗi domain có đầy đủ entity validation, repository interfaces, và tri�
 ## Files Tham Khảo Quan Trọng
 
 - `DDD-ARCHITECTURE.md` - Giải thích chi tiết kiến trúc
-- `src/app/airports/airports.module.ts` - Ví dụ hoàn chỉnh về cài đặt DI
+- `src/app/airports/airports.module.ts` - Ví dụ hoàn chỉnh về cài đặt DI với modular tokens
+- `src/app/airports/airports.tokens.ts` - Mẫu token file cho domain module
+- `src/infra/redis/redis.tokens.ts` - Mẫu token file cho infrastructure service
 - `src/domain/bookings/entities/booking.entity.ts` - Entity phức tạp với business rules
 - `src/infra/seats/repositories/in-memory-seat.repository.ts` - Mẫu triển khai repository
-```
