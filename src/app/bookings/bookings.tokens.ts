@@ -1,0 +1,16 @@
+/**
+ * Bookings Module Dependency Injection Tokens
+ */
+
+export const BOOKING_TOKENS = {
+  // Repository
+  BOOKING_REPOSITORY: 'BOOKING_REPOSITORY',
+
+  // Use Cases
+  CREATE_BOOKING_USE_CASE: 'CREATE_BOOKING_USE_CASE',
+  CONFIRM_BOOKING_USE_CASE: 'CONFIRM_BOOKING_USE_CASE',
+  CANCEL_BOOKING_USE_CASE: 'CANCEL_BOOKING_USE_CASE',
+  GET_BOOKING_BY_ID_USE_CASE: 'GET_BOOKING_BY_ID_USE_CASE',
+} as const;
+
+export type BookingToken = keyof typeof BOOKING_TOKENS;

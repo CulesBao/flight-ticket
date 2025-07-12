@@ -4,11 +4,12 @@ import {
   AirportEntity,
   AirportNotFoundError,
 } from '../../../domain/airports';
+import { AIRPORT_TOKENS } from '../airports.tokens';
 
 @Injectable()
 export class GetAirportByCodeUseCase {
   constructor(
-    @Inject('AIRPORT_REPOSITORY')
+    @Inject(AIRPORT_TOKENS.AIRPORT_REPOSITORY)
     private readonly airportRepository: AirportRepository,
   ) {}
 
