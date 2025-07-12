@@ -3,16 +3,14 @@ import { AirportsController } from 'src/api';
 import { GetAirportByCodeUseCase } from './index';
 import { GetAllAirportsUseCase } from './index';
 import { InMemoryAirportRepository, RedlockModule } from 'src/infra';
-
-// Token cho dependency injection
-export const AIRPORT_REPOSITORY_TOKEN = 'AIRPORT_REPOSITORY';
+import { AIRPORT_TOKENS } from './airports.tokens';
 
 @Module({
   controllers: [AirportsController],
   providers: [
     // Repository implementation
     {
-      provide: AIRPORT_REPOSITORY_TOKEN,
+      provide: AIRPORT_TOKENS.AIRPORT_REPOSITORY,
       useClass: InMemoryAirportRepository,
     },
     // Use cases
@@ -20,7 +18,7 @@ export const AIRPORT_REPOSITORY_TOKEN = 'AIRPORT_REPOSITORY';
     GetAllAirportsUseCase,
   ],
   exports: [
-    AIRPORT_REPOSITORY_TOKEN,
+    AIRPORT_TOKENS.AIRPORT_REPOSITORY,
     GetAirportByCodeUseCase,
     GetAllAirportsUseCase,
   ],

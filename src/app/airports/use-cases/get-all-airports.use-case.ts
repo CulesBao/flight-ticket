@@ -1,10 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { AirportEntity, AirportRepository } from '../../../domain/airports';
+import { AIRPORT_TOKENS } from '../airports.tokens';
 
 @Injectable()
 export class GetAllAirportsUseCase {
   constructor(
-    @Inject('AIRPORT_REPOSITORY')
+    @Inject(AIRPORT_TOKENS.AIRPORT_REPOSITORY)
     private readonly airportRepository: AirportRepository,
   ) {}
 
