@@ -41,6 +41,10 @@ export const BOOKING_TOKENS = {
 
 ## 🚀 Development Workflow
 
+### Before committing any code:
+
+- ✅ **Update the README** with new features or changes
+
 ### Before Implementing Any Feature:
 
 1. **📖 Read Relevant Instructions**: Check the appropriate `.github/*.instruction.md` file
