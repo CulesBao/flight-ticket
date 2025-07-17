@@ -1,0 +1,4 @@
+export const SEAT_TOKENS = {
+  SEAT_SERVICE: 'SEAT_SERVICE',
+  SEAT_REPOSITORY: 'SEAT_REPOSITORY',
+} as const;

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InMemoryRepository } from '../../../shared/infrastructure';
 import { FlightRepository, Flight, FlightSearchCriteria } from '../domain';
-import { AircraftType, FlightStatus } from '../domain/flight.enums';
+import { AircraftType } from '../domain/flight.enums';
 
 @Injectable()
 export class InMemoryFlightRepository
@@ -13,6 +13,7 @@ export class InMemoryFlightRepository
     this.seedData();
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async findByFlightNumber(flightNumber: string): Promise<Flight | null> {
     return (
       this.items.find(
@@ -21,6 +22,7 @@ export class InMemoryFlightRepository
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async findByRoute(
     departureAirport: string,
     arrivalAirport: string,
@@ -44,6 +46,7 @@ export class InMemoryFlightRepository
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async search(criteria: FlightSearchCriteria): Promise<Flight[]> {
     return this.items.filter((flight) => {
       if (
@@ -89,42 +92,39 @@ export class InMemoryFlightRepository
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(8, 0, 0, 0);
 
-    const flights = [
+    const sampleFlights = [
       Flight.create(
-        'VN123',
+        'VJ101',
         'SGN',
         'HAN',
-        new Date(tomorrow.getTime()),
-        new Date(tomorrow.getTime() + 2 * 60 * 60 * 1000), // +2 hours
+        new Date('2025-07-17T06:00:00Z'),
+        new Date('2025-07-17T08:30:00Z'),
         AircraftType.AIRBUS_A320,
+        1500000,
+        'VND',
+      ),
+      Flight.create(
+        'VN202',
+        'HAN',
+        'SGN',
+        new Date('2025-07-17T14:00:00Z'),
+        new Date('2025-07-17T16:15:00Z'),
+        AircraftType.BOEING_737,
+        1800000,
+        'VND',
+      ),
+      Flight.create(
+        'QH301',
+        'SGN',
+        'DAD',
+        new Date('2025-07-17T09:00:00Z'),
+        new Date('2025-07-17T10:30:00Z'),
+        AircraftType.BOEING_787,
         2500000,
         'VND',
-        180,
-      ),
-      Flight.create(
-        'VN456',
-        'HAN',
-        'SGN',
-        new Date(tomorrow.getTime() + 4 * 60 * 60 * 1000), // +4 hours
-        new Date(tomorrow.getTime() + 6 * 60 * 60 * 1000), // +6 hours
-        AircraftType.BOEING_737,
-        2300000,
-        'VND',
-        160,
-      ),
-      Flight.create(
-        'QR789',
-        'SGN',
-        'DOH',
-        new Date(tomorrow.getTime() + 8 * 60 * 60 * 1000), // +8 hours
-        new Date(tomorrow.getTime() + 16 * 60 * 60 * 1000), // +16 hours
-        AircraftType.BOEING_777,
-        15000000,
-        'VND',
-        300,
       ),
     ];
 
-    this.items = flights;
+    this.items = sampleFlights;
   }
 }

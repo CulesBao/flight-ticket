@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AirportModule, FlightModule, UserModule } from './modules';
+import { AirportModule, FlightModule, UserModule, SeatModule } from './modules';
 import { RedisModule, RedlockModule } from './infrastructure';
 
 @Module({
@@ -9,6 +9,7 @@ import { RedisModule, RedlockModule } from './infrastructure';
     AirportModule,
     FlightModule,
     UserModule,
+    SeatModule,
   ],
 })
 export class AppModule {}

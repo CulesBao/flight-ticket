@@ -13,8 +13,7 @@ export class Flight extends BaseEntity {
     private readonly _aircraftType: AircraftType,
     private readonly _basePrice: Money,
     private _status: FlightStatus = FlightStatus.SCHEDULED,
-    private _availableSeats: number = 150,
-    private readonly _totalSeats: number = 150,
+    // Removed seat counting - now managed by Seat module
   ) {
     super(id);
     this._validate();
@@ -52,14 +51,6 @@ export class Flight extends BaseEntity {
     return this._status;
   }
 
-  get availableSeats(): number {
-    return this._availableSeats;
-  }
-
-  get totalSeats(): number {
-    return this._totalSeats;
-  }
-
   get duration(): number {
     return this._arrivalTime.getTime() - this._departureTime.getTime();
   }
@@ -72,14 +63,6 @@ export class Flight extends BaseEntity {
     if (this._departureAirport === this._arrivalAirport) {
       throw new Error('Departure and arrival airports cannot be the same');
     }
-
-    if (this._totalSeats <= 0) {
-      throw new Error('Total seats must be greater than 0');
-    }
-
-    if (this._availableSeats < 0 || this._availableSeats > this._totalSeats) {
-      throw new Error('Available seats must be between 0 and total seats');
-    }
   }
 
   updateStatus(status: FlightStatus): void {
@@ -89,41 +72,9 @@ export class Flight extends BaseEntity {
     this._status = status;
   }
 
-  reserveSeats(count: number): void {
-    if (count <= 0) {
-      throw new Error('Seat count must be greater than 0');
-    }
-
-    if (this._availableSeats < count) {
-      throw new Error(
-        `Not enough seats available. Only ${this._availableSeats} seats left`,
-      );
-    }
-
-    if (this._status === FlightStatus.CANCELLED) {
-      throw new Error('Cannot reserve seats on cancelled flight');
-    }
-
-    this._availableSeats -= count;
-  }
-
-  releaseSeats(count: number): void {
-    if (count <= 0) {
-      throw new Error('Seat count must be greater than 0');
-    }
-
-    const newAvailableSeats = this._availableSeats + count;
-    if (newAvailableSeats > this._totalSeats) {
-      throw new Error('Cannot release more seats than total capacity');
-    }
-
-    this._availableSeats = newAvailableSeats;
-  }
-
   isBookable(): boolean {
     return (
       this._status === FlightStatus.SCHEDULED &&
-      this._availableSeats > 0 &&
       this._departureTime > new Date()
     );
   }
@@ -137,7 +88,6 @@ export class Flight extends BaseEntity {
     aircraftType: AircraftType,
     basePrice: number,
     currency: string = 'VND',
-    totalSeats: number = 150,
   ): Flight {
     const flightNumberVo = new FlightNumber(flightNumber);
     const price = new Money(basePrice, currency);
@@ -153,8 +103,6 @@ export class Flight extends BaseEntity {
       aircraftType,
       price,
       FlightStatus.SCHEDULED,
-      totalSeats,
-      totalSeats,
     );
   }
 }

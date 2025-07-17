@@ -5,8 +5,6 @@ import {
   FlightNotFoundError,
   FlightSearchCriteria,
   FlightStatus,
-  InsufficientSeatsError,
-  FlightNotBookableError,
 } from '../domain';
 import { PaginationOptions, PaginatedResult } from '../../../shared/domain';
 import { FLIGHT_TOKENS } from './flight.tokens';
@@ -56,35 +54,6 @@ export class FlightService {
 
   async findAll(options?: PaginationOptions): Promise<PaginatedResult<Flight>> {
     return this.flightRepository.findAll(options);
-  }
-
-  async reserveSeats(flightId: string, seatCount: number): Promise<Flight> {
-    const flight = await this.findById(flightId);
-
-    if (!flight.isBookable()) {
-      throw new FlightNotBookableError(
-        flight.flightNumber.value,
-        `Status: ${flight.status}, Available seats: ${flight.availableSeats}`,
-      );
-    }
-
-    if (flight.availableSeats < seatCount) {
-      throw new InsufficientSeatsError(
-        flight.flightNumber.value,
-        seatCount,
-        flight.availableSeats,
-      );
-    }
-
-    flight.reserveSeats(seatCount);
-    return this.flightRepository.save(flight);
-  }
-
-  async releaseSeats(flightId: string, seatCount: number): Promise<Flight> {
-    const flight = await this.findById(flightId);
-
-    flight.releaseSeats(seatCount);
-    return this.flightRepository.save(flight);
   }
 
   async updateFlightStatus(

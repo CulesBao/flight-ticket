@@ -51,6 +51,15 @@ This project implements a complete **4-layer DDD architecture**:
 - Transaction tracking and refund support
 - Multi-gateway integration (Stripe, PayPal ready)
 
+#### 💺 **Seat Management**
+
+- Detailed seat mapping with position tracking (row/column)
+- Multiple seat classes (Economy, Premium Economy, Business, First)
+- Seat types (Window, Middle, Aisle) and premium features
+- Real-time seat availability and reservation system
+- Seat blocking/unblocking for maintenance
+- Dynamic pricing based on class and features
+
 ### 🔧 **Infrastructure & Technical Features**
 
 #### 📡 **Redis Cluster & Caching**
@@ -94,7 +103,8 @@ src/
 │   ├── flight/            # Flight operations
 │   ├── user/              # User management
 │   ├── booking/           # Booking system
-│   └── payment/           # Payment processing
+│   ├── payment/           # Payment processing
+│   └── seat/              # Seat management
 └── shared/                # Shared kernel
     ├── domain/            # Base entities, value objects
     ├── application/       # Common interfaces
@@ -185,6 +195,16 @@ npm run test:cov
 - `POST /payments` - Create payment
 - `PUT /payments/:id/process` - Process payment
 - `PUT /payments/:id/complete` - Complete payment
+
+### 💺 Seats
+
+- `GET /seats/flight/:flightId` - Get all seats for a flight
+- `GET /seats/flight/:flightId/available` - Get available seats
+- `GET /seats/flight/:flightId/map` - Get seat map with layout
+- `GET /seats/flight/:flightId/statistics` - Get seat statistics
+- `PUT /seats/:id/reserve` - Reserve a specific seat
+- `PUT /seats/flight/:flightId/seat/:seatNumber/reserve` - Reserve by seat number
+- `POST /seats/generate` - Generate seats for a flight
 
 ## 📊 Business Workflow
 

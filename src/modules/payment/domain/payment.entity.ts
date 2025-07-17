@@ -38,7 +38,7 @@ export class Payment extends BaseEntity {
     );
   }
 
-  process(transactionId: string): void {
+  process(): void {
     if (this.status !== PaymentStatus.PENDING) {
       throw new Error('Only pending payments can be processed');
     }
@@ -46,7 +46,7 @@ export class Payment extends BaseEntity {
     this.updatedAt = new Date();
   }
 
-  complete(transactionId: string): void {
+  complete(): void {
     if (this.status !== PaymentStatus.PROCESSING) {
       throw new Error('Only processing payments can be completed');
     }

@@ -14,8 +14,6 @@ export class FlightMapper {
       basePrice: flight.basePrice.amount,
       currency: flight.basePrice.currency,
       status: flight.status,
-      availableSeats: flight.availableSeats,
-      totalSeats: flight.totalSeats,
       duration: flight.duration,
     });
   }

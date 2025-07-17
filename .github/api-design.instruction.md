@@ -253,7 +253,7 @@ export class PaginationMetaDto {
 
 ### Custom Exception Filter
 
-```typescript
+````typescript
 @Catch(DomainError)
 export class DomainErrorFilter implements ExceptionFilter {
   catch(exception: DomainError, host: ArgumentsHost) {
@@ -269,35 +269,6 @@ export class DomainErrorFilter implements ExceptionFilter {
     response.status(exception.httpStatus).json(errorResponse);
   }
 }
-```
-
-## 📚 OpenAPI Documentation
-
-- Use Swagger decorators for API documentation
-- Document all endpoints, DTOs, and response types
-- Provide examples for complex request/response bodies
-
-### Swagger Examples
-
-```typescript
-@Controller('api/v1/bookings')
-@ApiTags('Bookings')
-export class BookingsController {
-  @Post()
-  @ApiOperation({ summary: 'Create a new booking' })
-  @ApiResponse({
-    status: 201,
-    description: 'Booking created successfully',
-    type: BookingResponseDto,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Validation failed',
-    type: ErrorResponseDto,
-  })
-  async createBooking(@Body() dto: CreateBookingDto) {}
-}
-```
 
 ## 🎯 Best Practices
 
@@ -392,4 +363,4 @@ export class BookingsController {
     };
   }
 }
-```
+````

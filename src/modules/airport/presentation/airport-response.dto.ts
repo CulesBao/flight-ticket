@@ -1,21 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
-
 export class AirportResponseDto {
-  @ApiProperty({ example: 'SGN' })
   code: string;
-
-  @ApiProperty({ example: 'Tan Son Nhat International Airport' })
-  officialName: string;
-
-  @ApiProperty({ example: 'Tan Son Nhat' })
-  commonName: string;
-
-  @ApiProperty({ example: 'Ho Chi Minh City' })
-  cityName: string;
-
-  @ApiProperty({ example: 'Vietnam' })
-  countryName: string;
-
+  name: string;
+  displayName: string;
+  city: string;
+  country: string;
   constructor(data: {
     code: string;
     officialName: string;
@@ -24,9 +12,9 @@ export class AirportResponseDto {
     countryName: string;
   }) {
     this.code = data.code;
-    this.officialName = data.officialName;
-    this.commonName = data.commonName;
-    this.cityName = data.cityName;
-    this.countryName = data.countryName;
+    this.name = data.officialName;
+    this.displayName = data.commonName;
+    this.city = data.cityName;
+    this.country = data.countryName;
   }
 }
