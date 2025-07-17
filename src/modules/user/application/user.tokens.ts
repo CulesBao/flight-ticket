@@ -1,0 +1,4 @@
+export const USER_TOKENS = {
+  USER_SERVICE: 'USER_SERVICE',
+  USER_REPOSITORY: 'USER_REPOSITORY',
+} as const;
