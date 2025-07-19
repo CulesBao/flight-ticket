@@ -9,6 +9,7 @@ import {
   Query,
   Inject,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { SeatService, SEAT_TOKENS } from '../application';
 import { SeatClass, SeatType } from '../domain';
 import { PaginationDto } from '../../../shared/presentation';
@@ -25,6 +26,7 @@ import {
 } from './seat.dto';
 import { SeatMapper } from './seat.mapper';
 
+@ApiTags('seats')
 @Controller('seats')
 export class SeatController {
   constructor(

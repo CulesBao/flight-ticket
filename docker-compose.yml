@@ -1,39 +1,10 @@
-version: '3.8'
-services:
-  redis-instance-1:
-    image: redis:latest
-    container_name: redis-instance-1
-    ports:
-      - '7000:6379'
-    volumes:
-      - redis-data-1:/data
-    networks:
-      - redis-network
-  redis-instance-2:
-    image: redis:latest
-    container_name: redis-instance-2
-    ports:
-      - '7001:6379'
-    volumes:
-      - redis-data-1:/data
-    networks:
-      - redis-network
-    depends_on:
-      - redis-instance-1
-  redis-instance-3:
-    image: redis:latest
-    container_name: redis-instance-3
-    ports:
-      - '7002:6379'
-    volumes:
-      - redis-data-1:/data
-    networks:
-      - redis-network
-    depends_on:
-      - redis-instance-2
-volumes:
-  redis-data-1:
+version: '2'
 
-networks:
-  redis-network:
-    driver: bridge
+services:
+  redis-cluster:
+    image: bitnami/redis-cluster:latest
+    ports:
+      - '6379:6379'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_NODES=3

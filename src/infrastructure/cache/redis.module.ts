@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { RedisClusterService, REDIS_TOKENS } from './redis';
+import { REDIS_TOKENS, RedisClusterService } from './redis';
 
 @Module({
   providers: [

@@ -3,8 +3,11 @@ import { SeatController } from './presentation';
 import { SeatService, SEAT_TOKENS } from './application';
 import { InMemorySeatRepository } from './infrastructure';
 import { SEAT_REPOSITORY } from './domain';
+import { RedisModule } from '../../infrastructure/cache/redis.module';
+import { RedlockModule } from 'src/infrastructure';
 
 @Module({
+  imports: [RedisModule, RedlockModule],
   controllers: [SeatController],
   providers: [
     {

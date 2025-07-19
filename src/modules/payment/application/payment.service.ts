@@ -68,15 +68,17 @@ export class PaymentService {
     return this.paymentRepository.save(payment);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async processPayment(id: string, transactionId: string): Promise<Payment> {
     const payment = await this.findById(id);
-    payment.process(transactionId);
+    payment.process();
     return this.paymentRepository.save(payment);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async completePayment(id: string, transactionId: string): Promise<Payment> {
     const payment = await this.findById(id);
-    payment.complete(transactionId);
+    payment.complete();
     return this.paymentRepository.save(payment);
   }
 

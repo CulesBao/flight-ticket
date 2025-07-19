@@ -207,7 +207,7 @@ export class SeatService {
 
     return await this.redlockService.using([lockKey], 5000, async () => {
       const seat = await this.findSeatByNumber(flightId, seatNumber);
-
+      console.log(`Reserving seat ${seatNumber} for user ${userId}`);
       seat.reserve(userId);
 
       const savedSeat = await this.seatRepository.save(seat);
@@ -224,7 +224,6 @@ export class SeatService {
         }),
         3600,
       );
-
       return savedSeat;
     });
   }

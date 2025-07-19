@@ -1,7 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import Redlock, { Lock, RedlockAbortSignal } from 'redlock';
-import { Cluster } from 'ioredis';
 import { REDIS_TOKENS } from '../redis/redis.tokens';
+import { RedisClusterService } from '../redis';
 
 @Injectable()
 export class RedlockService {
@@ -10,18 +10,16 @@ export class RedlockService {
 
   constructor(
     @Inject(REDIS_TOKENS.REDIS_CLUSTER)
-    private readonly redisCluster: any,
+    private readonly redisCluster: RedisClusterService,
   ) {
     this.initializeRedlock();
   }
 
   private initializeRedlock() {
-    // Get all Redis nodes from cluster
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const cluster = this.redisCluster.getCluster() as Cluster;
-    const nodes = cluster.nodes('all');
+    const redis = this.redisCluster.getRedis();
 
-    this.redlock = new Redlock(nodes, {
+    // Sử dụng Redis instance thay vì cluster
+    this.redlock = new Redlock([redis], {
       driftFactor: 0.01,
       retryCount: 10,
       retryDelay: 200,
@@ -33,7 +31,7 @@ export class RedlockService {
       this.logger.error('A redis error has occurred:', err);
     });
 
-    this.logger.log('Redlock initialized with Redis cluster');
+    this.logger.log('Redlock initialized with Redis instance');
   }
 
   async acquire(resource: string | string[], ttl: number): Promise<Lock> {

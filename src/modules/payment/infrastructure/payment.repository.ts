@@ -75,8 +75,8 @@ export class InMemoryPaymentRepository
     ];
 
     // Complete first payment
-    payments[0].process('txn_123456789');
-    payments[0].complete('txn_123456789');
+    payments[0].process();
+    payments[0].complete();
 
     payments.forEach((payment) => this.items.push(payment));
   }

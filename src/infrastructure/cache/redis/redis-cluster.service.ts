@@ -1,61 +1,52 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cluster } from 'ioredis';
-import { RedisClusterOptions } from './redis.config';
+import { Redis } from 'ioredis';
 
 @Injectable()
 export class RedisClusterService {
   private readonly logger = new Logger(RedisClusterService.name);
-  private cluster: Cluster;
+  private redis: Redis;
 
   constructor() {
-    this.initializeCluster();
+    this.initializeRedis();
   }
 
-  private initializeCluster() {
-    const clusterOptions: RedisClusterOptions = {
-      nodes: [
-        { host: 'localhost', port: 7000 },
-        { host: 'localhost', port: 7001 },
-        { host: 'localhost', port: 7002 },
-      ],
-      enableReadyCheck: true,
-      redisOptions: {
-        connectTimeout: 10000,
-        lazyConnect: true,
-        maxRetriesPerRequest: 3,
-      },
-    };
-
-    this.cluster = new Cluster(clusterOptions.nodes, clusterOptions);
-
-    this.cluster.on('connect', () => {
-      this.logger.log('Redis cluster connected');
+  private initializeRedis() {
+    this.redis = new Redis({
+      host: 'localhost',
+      port: 6379,
+      connectTimeout: 10000,
+      maxRetriesPerRequest: 3,
+      lazyConnect: true,
     });
 
-    this.cluster.on('ready', () => {
-      this.logger.log('Redis cluster ready');
+    this.redis.on('connect', () => {
+      this.logger.log('Redis connected');
     });
 
-    this.cluster.on('error', (error) => {
-      this.logger.error('Redis cluster error:', error);
+    this.redis.on('ready', () => {
+      this.logger.log('Redis ready');
     });
 
-    this.cluster.on('close', () => {
-      this.logger.warn('Redis cluster connection closed');
+    this.redis.on('error', (error) => {
+      this.logger.error('Redis error:', error.message);
     });
 
-    this.cluster.on('reconnecting', () => {
-      this.logger.log('Redis cluster reconnecting...');
+    this.redis.on('close', () => {
+      this.logger.warn('Redis connection closed');
+    });
+
+    this.redis.on('reconnecting', () => {
+      this.logger.log('Redis reconnecting...');
     });
   }
 
-  getCluster(): Cluster {
-    return this.cluster;
+  getRedis(): Redis {
+    return this.redis;
   }
 
   async get(key: string): Promise<string | null> {
     try {
-      return await this.cluster.get(key);
+      return await this.redis.get(key);
     } catch (error) {
       this.logger.error(`Error getting key ${key}:`, error);
       throw error;
@@ -65,9 +56,9 @@ export class RedisClusterService {
   async set(key: string, value: string, ttl?: number): Promise<'OK'> {
     try {
       if (ttl) {
-        return await this.cluster.setex(key, ttl, value);
+        return await this.redis.setex(key, ttl, value);
       }
-      return await this.cluster.set(key, value);
+      return await this.redis.set(key, value);
     } catch (error) {
       this.logger.error(`Error setting key ${key}:`, error);
       throw error;
@@ -76,7 +67,7 @@ export class RedisClusterService {
 
   async del(key: string): Promise<number> {
     try {
-      return await this.cluster.del(key);
+      return await this.redis.del(key);
     } catch (error) {
       this.logger.error(`Error deleting key ${key}:`, error);
       throw error;
@@ -85,7 +76,7 @@ export class RedisClusterService {
 
   async exists(key: string): Promise<number> {
     try {
-      return await this.cluster.exists(key);
+      return await this.redis.exists(key);
     } catch (error) {
       this.logger.error(`Error checking existence of key ${key}:`, error);
       throw error;
@@ -94,7 +85,7 @@ export class RedisClusterService {
 
   async hget(key: string, field: string): Promise<string | null> {
     try {
-      return await this.cluster.hget(key, field);
+      return await this.redis.hget(key, field);
     } catch (error) {
       this.logger.error(
         `Error getting hash field ${field} from key ${key}:`,
@@ -106,7 +97,7 @@ export class RedisClusterService {
 
   async hset(key: string, field: string, value: string): Promise<number> {
     try {
-      return await this.cluster.hset(key, field, value);
+      return await this.redis.hset(key, field, value);
     } catch (error) {
       this.logger.error(
         `Error setting hash field ${field} in key ${key}:`,
@@ -118,7 +109,7 @@ export class RedisClusterService {
 
   async expire(key: string, seconds: number): Promise<number> {
     try {
-      return await this.cluster.expire(key, seconds);
+      return await this.redis.expire(key, seconds);
     } catch (error) {
       this.logger.error(`Error setting expiration for key ${key}:`, error);
       throw error;
@@ -128,10 +119,10 @@ export class RedisClusterService {
   // eslint-disable-next-line @typescript-eslint/require-await
   async disconnect(): Promise<void> {
     try {
-      this.cluster.disconnect();
-      this.logger.log('Redis cluster disconnected');
+      this.redis.disconnect();
+      this.logger.log('Redis disconnected');
     } catch (error) {
-      this.logger.error('Error disconnecting from Redis cluster:', error);
+      this.logger.error('Error disconnecting from Redis:', error);
     }
   }
 }

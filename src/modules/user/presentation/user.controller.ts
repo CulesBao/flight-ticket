@@ -9,6 +9,7 @@ import {
   Query,
   Inject,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UserService, USER_TOKENS } from '../application';
 import { UserRole } from '../domain';
 import { PaginationDto } from '../../../shared/presentation';
@@ -16,6 +17,7 @@ import { UserResponseDto } from './user-response.dto';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { UserMapper } from './user.mapper';
 
+@ApiTags('users')
 @Controller('users')
 export class UserController {
   constructor(
@@ -24,6 +26,12 @@ export class UserController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: 'Get all users' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of users retrieved successfully',
+    type: [UserResponseDto],
+  })
   async findAll(@Query() pagination: PaginationDto) {
     const paginationOptions = {
       page: pagination.page || 1,
@@ -40,6 +48,12 @@ export class UserController {
   }
 
   @Get('active')
+  @ApiOperation({ summary: 'Get active users' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of active users retrieved successfully',
+    type: [UserResponseDto],
+  })
   async findActiveUsers(@Query() pagination: PaginationDto) {
     const result = await this.userService.getActiveUsers({
       page: pagination.page || 1,
